@@ -1,0 +1,13 @@
+# Temp file
+*.swp
+*.*~
+.DS_Store
+*.pyc
+
+# Data file
+*.pkl
+
+# Others
+dataSets.zip
+scripts.zip
+
