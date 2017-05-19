@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-file_name = '../dataSets/training/weather (table 7)_training_update.csv'
-# file_name = '../dataSets/testing_phase1/weather (table 7)_test1.csv'
+# file_name = '../dataSets/training/weather (table 7)_training_update.csv'
+file_name = '../dataSets/testing_phase1/weather (table 7)_test1.csv'
 
 with open(file_name, 'r') as f:
 	lines = f.readlines()
@@ -36,11 +36,14 @@ for line in lines:
 
 # Search for missing weather statistic.
 day_num = [('07', 31), ('08', 31), ('09', 30), ('10', 17)]
+# day_num = [('10', 6)]
 hours = map(lambda x: str(x), range(0, 24, 3))
 weather_missing = 0
 for month, days_in_month in day_num:
 	for day in range(days_in_month):
 		date_str = "2016-{}-{:0>2}".format(month, day + 1)
+	# for day in range(days_in_month):
+	# 	date_str = "2016-{}-{:0>2}".format(month, day + 18)
 		for hour in hours:
 			if (date_str, hour) not in date_hours:
 				weather_missing += 1

@@ -1,11 +1,14 @@
 # Temp file
-*.swp
+.*.sw*
 *.*~
 .DS_Store
 *.pyc
 
 # Data file
 *.pkl
+result/
+model/
+test/
 
 # Others
 dataSets.zip
