@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
 from datetime import datetime, timedelta
+import pandas as pd
+from pandas.tseries.offsets import DateOffset
 
 # Declare global variables.
 intersections = range(1, 4)
@@ -41,6 +43,7 @@ def get_weather_data(date_time, weather_data, mean_weather_data=None):
 	else:
 		return mean_weather_data
 
+# Query all volume within a time-window.
 def get_volume_by_time(data, time_window, tollgate, direction):
 	results = []
 	for item in data:
@@ -51,6 +54,7 @@ def get_volume_by_time(data, time_window, tollgate, direction):
 		results.append(item)
 	return results
 
+# Query all trajectories within a time-window.
 def get_trajectory_by_time(data, time_window, intersection, tollgate):
 	results = []
 	for item in data:
@@ -61,17 +65,37 @@ def get_trajectory_by_time(data, time_window, intersection, tollgate):
 		results.append(item)
 	return results
 
-def testing():
-	time_begin = "2016-07-19 00:00:00"
-	time_begin = datetime.strptime(time_begin, "%Y-%m-%d %H:%M:%S")
-	time_end = "2016-10-11 23:40:00"
-	time_end = datetime.strptime(time_end, "%Y-%m-%d %H:%M:%S")
-	window_size = timedelta(minutes=20)
-	window_num = 6
+def convert_time_window_by_delta(dataframe, date_offset = DateOffset(0)):
+	""" Alter time_window of dataframe by offset.
+	Args:
+		dataframe: Original dataframe with column 'time_window'.
+		date_offset: Offset of time_window, set to DateOffset(0) as default.
+	Returns:
+		df: Dataframe with time_window changed.
+	"""
 
-	time_query = "2016-08-01 00:00:00"
-	time_query = datetime.strptime(time_query, "%Y-%m-%d %H:%M:%S")
+	df = dataframe.copy()
+	df['time_begin'] = pd.to_datetime(df.time_window.apply(lambda x: x.split(',')[0].strip('[')))
+	df['time_end'] = pd.to_datetime(df.time_window.apply(lambda x: x.split(',')[1].strip(')')))
+	df['time_begin'] = df.time_begin.apply(lambda x: x + date_offset)
+	df['time_end'] = df.time_end.apply(lambda x: x + date_offset)
+	df['time_window'] = df.apply(lambda x:
+	'[' + str(x['time_begin']) + ',' + str(x['time_end']) + ')', axis=1)
+	df.drop(['time_begin', 'time_end'], axis=1, inplace=True)
+	return df
 
+def export_predict(cond, pred, filename, pred_attr):
+	""" Export prediction to csv file.
+	Args:
+		cond: Dataframe with prediction conditions.
+		pred: Prediction of conditions.
+		filename: Path to csv file to be export.
+		pred_attr: Name of prediction attribute.
+	"""
+	dataframe = cond.copy()
+	dataframe[pred_attr] = pred
+	dataframe.to_csv(filename, index=False)
+	return
 
 if __name__ == '__main__':
 	from parse_data import *

@@ -5,27 +5,9 @@ import pandas as pd
 import numpy as np
 from pandas.tseries.offsets import DateOffset
 
-from tools import get_time_window
+from tools import get_time_window, convert_time_window_by_delta, export_predict
 from train_xgb import convert_dataframe, add_weather_data
 
-def convert_time_window_by_delta(dataframe, date_offset = DateOffset(0)):
-	""" Alter time_window of dataframe by offset.
-	Args:
-		dataframe: Original dataframe with column 'time_window'.
-		date_offset: Offset of time_window, set to DateOffset(0) as default.
-	Returns:
-		df: Dataframe with time_window changed.
-	"""
-
-	df = dataframe.copy()
-	df['time_begin'] = pd.to_datetime(df.time_window.apply(lambda x: x.split(',')[0].strip('[')))
-	df['time_end'] = pd.to_datetime(df.time_window.apply(lambda x: x.split(',')[1].strip(')')))
-	df['time_begin'] = df.time_begin.apply(lambda x: x + date_offset)
-	df['time_end'] = df.time_end.apply(lambda x: x + date_offset)
-	df['time_window'] = df.apply(lambda x:
-	'[' + str(x['time_begin']) + ',' + str(x['time_end']) + ')', axis=1)
-	df.drop(['time_begin', 'time_end'], axis=1, inplace=True)
-	return df
 
 if __name__ == "__main__":
 	# Input data path #
@@ -46,7 +28,7 @@ if __name__ == "__main__":
 	print("Preprocessing on test data done.")
 
 	# Load model from file.
-	model_path = '../model/model_xgb.bin'
+	model_path = '../model/model_xgb_reg:linear_0.8_11_500.bin'
 	model = xgb.Booster()
 	model.load_model(model_path)
 	print("Load xgboost model from {}.".format(model_path))
@@ -57,7 +39,6 @@ if __name__ == "__main__":
 
 	# Export prediction data.
 	export_file = '../result/volume_prediction.csv'
-	test_cond['volume'] = pred
-	test_cond.to_csv(export_file, index=False)
+	export_predict(test_cond, pred, export_file, 'volume')
 	print("Export prediction to {}".format(export_file))
 

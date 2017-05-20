@@ -1,0 +1,26 @@
+# Log during tuning models.
+
+Params of xgboost model: {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'seed': 1, 'max_depth': 9}
+Number of rounds: 1000
+RMSE of train: 6.6579839311
+RMSE of test: 17.4041616623
+MAPE of train: 0.193286086468
+MAPE of test: 0.275384771744
+
+Params of xgboost model: {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'seed': 1, 'max_depth': 10}
+Number of rounds: 1000
+MAPE of train: 0.174481392491
+MAPE of test: 0.279711320128
+
+Params of xgboost model: {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'seed': 1, 'max_depth': 11}
+Number of rounds: 1000
+RMSE of train: 5.5716170917
+RMSE of test: 18.4282468088
+MAPE of train: 0.160164349097
+MAPE of test: 0.286819316108
+
+Params of xgboost model: {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'seed': 1, 'max_depth': 12}
+Number of rounds: 1000
+MAPE of train: 0.149595424833
+MAPE of test: 0.290322530732
+

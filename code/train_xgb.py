@@ -4,9 +4,8 @@ import xgboost as xgb
 import numpy as np
 import pandas as pd
 from datetime import datetime
-import pdb
 
-from tools import get_time_window, get_weather_data
+from tools import get_time_window, get_weather_data, export_predict
 
 # TODO: Remove the IMPORT_EXTRA_DATA option.
 IMPORT_EXTRA_DATA = True
@@ -82,18 +81,6 @@ def mape(label, pred):
 	"""
 	return np.mean(np.abs(label - pred).astype(np.float64) / label)
 
-def export_predict(cond, pred, filename, pred_attr):
-	""" Export prediction to csv file.
-	Args:
-		cond: Dataframe with prediction conditions.
-		pred: Prediction of conditions.
-		filename: Path to csv file to be export.
-		pred_attr: Name of prediction attribute.
-	"""
-	dataframe = cond.copy()
-	dataframe[pred_attr] = pred
-	dataframe.to_csv(filename, index=False)
-	return
 
 if __name__ == "__main__":
 	# Input data path #
@@ -120,47 +107,56 @@ if __name__ == "__main__":
 		train_df = convert_dataframe(train_df, weather_train, mean_weather_train)
 		test_df = convert_dataframe(test_df, weather_test, mean_weather_test)
 
- 	# Config XGBoost model.
- 	params = {}
- 	params["objective"] = "reg:linear"
- 	params["eta"] = 0.02
- 	params["min_child_weight"] = 8
- 	params["subsample"] = 0.9
- 	params["colsample_bytree"] = 0.8
- 	params["silent"] = 1
- 	params["max_depth"] = 8
- 	params["seed"] = 1
- 	num_round = 1000
+	# Config XGBoost model.
+	params = {}
+	params["objective"] = "reg:linear"
+	params["eta"] = 0.02
+	params["min_child_weight"] = 8
+	params["subsample"] = 0.9
+	params["colsample_bytree"] = 0.8
+	params["max_depth"] = 9
+	params["seed"] = 1
+	params["silent"] = 1
+	num_round = 1000
+	k_fold = 5
 	print("Params of xgboost model: {}".format(params))
+	print("Number of rounds: {}, Number of fold: {}".format(num_round, k_fold))
  
- 	# Convert data format.
- 	train_x, test_x = np.array(train_df), np.array(test_df)
+	# Convert data format.
+	train_x, test_x = np.array(train_df), np.array(test_df)
 	train_y, test_y = train_label, test_label
- 	xgtrain = xgb.DMatrix(train_x, label=train_y)
- 	xgtest = xgb.DMatrix(test_x)
- 
- 	# Train and test with xgboost.
- 	model = xgb.train(params, xgtrain, num_round)
+	xgtrain = xgb.DMatrix(train_x, label=train_y)
+	xgtest = xgb.DMatrix(test_x, label=test_y)
+	watch_list = [(xgtrain, 'train'), (xgtest, 'eval')]
+	
+	# Train and test with xgboost.
+	model = xgb.train(params, xgtrain, num_round, watch_list, verbose_eval=100)
 	print("Training complete.")
- 	train_pred = model.predict(xgtrain)
- 	test_pred = model.predict(xgtest)
- 
- 	# Show model error.
- 	train_err = rmse(train_y, train_pred)
- 	test_err = rmse(test_y, test_pred)
- 	print("RMSE of train: {}".format(train_err))
- 	print("RMSE of test: {}".format(test_err))
- 	train_err = mape(train_y, train_pred)
- 	test_err = mape(test_y, test_pred)
- 	print "MAPE of train: {}".format(train_err)
- 	print "MAPE of test: {}".format(test_err)
+
+#	model_path = '../model/model_xgb.bin'
+#	model = xgb.Booster(model_file=model_path)
+	train_pred = model.predict(xgtrain)
+	test_pred = model.predict(xgtest)
+
+	# Show model error.
+	train_err = rmse(train_y, train_pred)
+	test_err = rmse(test_y, test_pred)
+	print("RMSE of train: {}".format(train_err))
+	print("RMSE of test: {}".format(test_err))
+	train_err = mape(train_y, train_pred)
+	test_err = mape(test_y, test_pred)
+	print "MAPE of train: {}".format(train_err)
+	print "MAPE of test: {}".format(test_err)
 
 	# Export predictions.
 	print("Export predictioin to csv file...")
-	export_predict(train_cond, train_pred, '../export_train.csv', 'volume')
-	export_predict(test_cond, test_pred, '../export_test.csv', 'volume')
+	export_predict(train_cond, train_pred, '../result/export_train.csv', 'volume')
+	export_predict(test_cond, test_pred, '../result/export_test.csv', 'volume')
 
 	# Save model.
-	model_path = '../model/model_xgb.bin'
+	params_str = '_'.join(map(str, [params['objective'], params['colsample_bytree'],
+	params['max_depth'], num_round]))
+	model_path = '../model/model_xgb_{}.bin'.format(params_str)
 	model.save_model(model_path)
 	print("Model saved to {}.".format(model_path))
+
