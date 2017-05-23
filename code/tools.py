@@ -22,12 +22,7 @@ def get_mean_data(weather_data):
 	keys = ['pressure', 'sea_pressure', 'wind_direction', 'wind_speed',
 		'temperature', 'rel_humidity', 'precipitation']
 	for key in keys:
-		mean_data[key] = []
-	for item in weather_data.itervalues():
-		for key in keys:
-			mean_data[key].append(item[key])
-	for key in keys:
-		mean_data[key] = np.mean(mean_data[key])
+		mean_data[key] = weather_data[key].mean()
 	return mean_data
 
 # Get weather data at a specific time_window.
@@ -37,9 +32,10 @@ def get_weather_data(date_time, weather_data, mean_weather_data=None):
 
 	hour, minute, second = date_time.hour, date_time.minute, date_time.second
 	time_delta = timedelta(hours=hour%3, minutes=minute, seconds=second)
-	time_window = date_time - time_delta
-	if time_window in weather_data:
-		return weather_data[time_window]
+	time_window = pd.to_datetime(date_time - time_delta)
+
+	if time_window in weather_data.index:
+		return weather_data.loc[time_window].to_dict()
 	else:
 		return mean_weather_data
 
@@ -98,12 +94,7 @@ def export_predict(cond, pred, filename, pred_attr):
 	return
 
 if __name__ == '__main__':
-	from parse_data import *
-
-	data_root = '../dataSets/'
-	weather_file = data_root + 'training/weather (table 7)_training_update.csv'
-	weather_data = parse_weather_data(weather_file)
-	mean_weather_data = get_mean_data(weather_data)
+	from load_data import *
 
 	time_window = "2016-08-30 12:41:23"
 	time_start = datetime.strptime(time_window, "%Y-%m-%d %H:%M:%S")
@@ -113,4 +104,4 @@ if __name__ == '__main__':
 	print time_end
 
 	print get_time_window(time_end)
-	print get_weather_data(time_end, weather_data, mean_weather_data)
+	print get_weather_data(time_end, weather_train, mean_weather_train)

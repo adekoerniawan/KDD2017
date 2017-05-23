@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+from tools import get_mean_data
 
 PRINT_INFO = False
 data_root = '../dataSets/'
@@ -67,17 +68,9 @@ def parse_weather_data(filename):
 	# Fix errors at wind_direction.
 	df['wind_direction'] = df['wind_direction'].apply(lambda x: x % 360)
 	df.drop(['date', 'hour'], axis=1, inplace=True)
+	df = df.set_index('time_window')
 
 	return df
-
-# Calculate average of weather data.
-def get_mean_data(weather_data):
-	mean_data = {}
-	keys = ['pressure', 'sea_pressure', 'wind_direction', 'wind_speed',
-		'temperature', 'rel_humidity', 'precipitation']
-	for key in keys:
-		mean_data[key] = weather_data[key].mean()
-	return mean_data
 
 def parse_volume_data(filename):
 	df = pd.read_csv(filename)
