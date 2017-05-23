@@ -7,12 +7,9 @@ from datetime import datetime
 
 from tools import get_time_window, get_weather_data, export_predict
 
-# TODO: Remove the IMPORT_EXTRA_DATA option.
-IMPORT_EXTRA_DATA = True
-if IMPORT_EXTRA_DATA:
-	from load_data import *
+from load_data import *
 
-def convert_dataframe(dataframe, weather_data=None, mean_weather_data=None):
+def convert_dataframe(dataframe, weather_data, mean_weather_data):
 	df = dataframe.copy()
 
 	# Convert to date format.
@@ -26,9 +23,8 @@ def convert_dataframe(dataframe, weather_data=None, mean_weather_data=None):
 	df['hour'] = df['time'].apply(lambda x: x.hour)
 	df['minute'] = df['time'].apply(lambda x: x.minute)
 
-	if weather_data and mean_weather_data:
-		# Add weather info to dataframe.
-		df = add_weather_data(df, weather_data, mean_weather_data)
+	# Add weather info to dataframe.
+	df = add_weather_data(df, weather_data, mean_weather_data)
 
 	# Drop unused field.
 	df.drop(['time_window', 'time'], axis=1, inplace=True)
@@ -100,12 +96,8 @@ if __name__ == "__main__":
 	test_cond = test_df.copy()
 
 	print "Converting dateframe..."
-	if not IMPORT_EXTRA_DATA:
-		train_df = convert_dataframe(train_df)
-		test_df = convert_dataframe(test_df)
-	else:
-		train_df = convert_dataframe(train_df, weather_train, mean_weather_train)
-		test_df = convert_dataframe(test_df, weather_test, mean_weather_test)
+	train_df = convert_dataframe(train_df, weather_train, mean_weather_train)
+	test_df = convert_dataframe(test_df, weather_test, mean_weather_test)
 
 	# Config XGBoost model.
 	params = {}
@@ -117,7 +109,7 @@ if __name__ == "__main__":
 	params["max_depth"] = 9
 	params["seed"] = 1
 	params["silent"] = 1
-	num_round = 1000
+	num_round = 100
 	k_fold = 5
 	print("Params of xgboost model: {}".format(params))
 	print("Number of rounds: {}, Number of fold: {}".format(num_round, k_fold))
@@ -148,15 +140,15 @@ if __name__ == "__main__":
 	print "MAPE of train: {}".format(train_err)
 	print "MAPE of test: {}".format(test_err)
 
-	# Export predictions.
-	print("Export predictioin to csv file...")
-	export_predict(train_cond, train_pred, '../result/export_train.csv', 'volume')
-	export_predict(test_cond, test_pred, '../result/export_test.csv', 'volume')
-
-	# Save model.
-	params_str = '_'.join(map(str, [params['objective'], params['colsample_bytree'],
-	params['max_depth'], num_round]))
-	model_path = '../model/model_xgb_{}.bin'.format(params_str)
-	model.save_model(model_path)
-	print("Model saved to {}.".format(model_path))
+# 	# Export predictions.
+# 	print("Export predictioin to csv file...")
+# 	export_predict(train_cond, train_pred, '../result/export_train.csv', 'volume')
+# 	export_predict(test_cond, test_pred, '../result/export_test.csv', 'volume')
+# 
+# 	# Save model.
+# 	params_str = '_'.join(map(str, [params['objective'], params['colsample_bytree'],
+# 	params['max_depth'], num_round]))
+# 	model_path = '../model/model_xgb_{}.bin'.format(params_str)
+# 	model.save_model(model_path)
+# 	print("Model saved to {}.".format(model_path))
 
