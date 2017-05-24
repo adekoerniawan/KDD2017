@@ -8,6 +8,7 @@ from datetime import datetime
 from tools import get_time_window, get_weather_data, export_predict, get_history_volume
 
 from load_data import *
+from config import config
 
 def convert_dataframe(dataframe, weather_data, mean_weather_data, volume_data):
 	df = dataframe.copy()
@@ -20,9 +21,11 @@ def convert_dataframe(dataframe, weather_data, mean_weather_data, volume_data):
 	df['minute'] = df['time_window'].apply(lambda x: x.minute)
 
 	# Add extra info to dataframe.
-	df = add_weather_data(df, weather_data, mean_weather_data)
-	window_num = 6
-	df = add_history_volume(df, volume_data, window_num)
+	if config.add_weather:
+		df = add_weather_data(df, weather_data, mean_weather_data)
+	if config.add_history:
+		window_num = config.window_num
+		df = add_history_volume(df, volume_data, window_num)
 
 	# Drop unused field.
 	df.drop(['time_window'], axis=1, inplace=True)
@@ -97,6 +100,16 @@ if __name__ == "__main__":
 	train_df = avg_volume_train
 	test_df = avg_volume_test
 
+	# Divide dataset into training part and validation part.
+	num_train = len(train_df)
+	idx_train = np.arange(num_train)
+	num_val = int(num_train * config.val_ratio)
+	idx_val = np.random.randint(0, num_train, num_val)
+	idx_traini_part = np.delete(idx_train, idx_val)
+	num_train = num_train - num_val
+	print("Divide dataset into training set with {} samples and validation set with {} \
+	samples.".format(num_train, num_val))
+
 	train_label = train_df['volume'].values
 	test_label = test_df['volume'].values
 	train_df.drop(['volume'], axis=1, inplace=True)
@@ -109,35 +122,34 @@ if __name__ == "__main__":
 	test_df = convert_dataframe(test_df, weather_test, mean_weather_test, volume_test)
 
 	# Config XGBoost model.
-	params = {}
-	params["objective"] = "reg:linear"
-	params["eta"] = 0.02
-	params["min_child_weight"] = 8
-	params["subsample"] = 0.9
-	params["colsample_bytree"] = 0.8
-	params["max_depth"] = 9
-	params["seed"] = 1
-	params["silent"] = 1
-	num_round = 100
-	k_fold = 5
+	params = config.xgb_params
+	num_round = config.xgb_num_round
+	k_fold = config.xgb_nfold
 	print("Params of xgboost model: {}".format(params))
 	print("Number of rounds: {}, Number of fold: {}".format(num_round, k_fold))
  
 	# Convert data format.
-	train_x, test_x = np.array(train_df), np.array(test_df)
+	train_x, test_x = train_df, test_df
 	train_y, test_y = train_label, test_label
-	xgtrain = xgb.DMatrix(train_x, label=train_y)
-	xgtest = xgb.DMatrix(test_x, label=test_y)
-	watch_list = [(xgtrain, 'train'), (xgtest, 'eval')]
+
+	train_part_x, train_part_y = train_df.iloc[idx_train], train_label[idx_train]
+	val_x, val_y = train_df.iloc[idx_val], train_label[idx_val]
+
+	# Construct DMatrix for xgb model.
+	xgb_train = xgb.DMatrix(train_x, label=train_y)
+	xgb_train_part = xgb.DMatrix(train_part_x, label=train_part_y)
+	xgb_val = xgb.DMatrix(val_x, label=val_y)
+	xgb_test = xgb.DMatrix(test_x, label=test_y)
+	watch_list = [(xgb_train_part, 'train'), (xgb_val, 'eval')]
 	
 	# Train and test with xgboost.
-	model = xgb.train(params, xgtrain, num_round, watch_list, verbose_eval=100)
+	model = xgb.train(params, xgb_train, num_round, watch_list, verbose_eval=100)
 	print("Training complete.")
 
 #	model_path = '../model/model_xgb.bin'
 #	model = xgb.Booster(model_file=model_path)
-	train_pred = model.predict(xgtrain)
-	test_pred = model.predict(xgtest)
+	train_pred = model.predict(xgb_train)
+	test_pred = model.predict(xgb_test)
 
 	# Show model error.
 	train_err = rmse(train_y, train_pred)

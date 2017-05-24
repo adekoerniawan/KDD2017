@@ -3,9 +3,10 @@
 import numpy as np
 import pandas as pd
 from tools import get_mean_data
+from config import config
 
-PRINT_INFO = False
-data_root = '../dataSets/'
+PRINT_INFO = config.print_info 
+data_root = config.data_root
 
 def parse_link_data(filename):
 	with open(filename, 'r') as f:

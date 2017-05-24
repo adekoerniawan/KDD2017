@@ -24,3 +24,10 @@ Number of rounds: 1000
 MAPE of train: 0.149595424833
 MAPE of test: 0.290322530732
 
+Model with history volume:  {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'seed' 1, 'max_depth': 9}
+Number of rounds: 700
+RMSE of train: 5.44533470623
+RMSE of test: 28.5439427639
+MAPE of train: 0.216437221477
+MAPE of test: 0.382246901864
+
