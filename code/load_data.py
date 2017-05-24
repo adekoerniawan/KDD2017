@@ -68,7 +68,7 @@ def parse_weather_data(filename):
 	# Fix errors at wind_direction.
 	df['wind_direction'] = df['wind_direction'].apply(lambda x: x % 360)
 	df.drop(['date', 'hour'], axis=1, inplace=True)
-	df = df.set_index('time_window')
+	df.set_index('time_window', inplace=True)
 
 	return df
 

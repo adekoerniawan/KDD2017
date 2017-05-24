@@ -5,11 +5,11 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
-from tools import get_time_window, get_weather_data, export_predict
+from tools import get_time_window, get_weather_data, export_predict, get_history_volume
 
 from load_data import *
 
-def convert_dataframe(dataframe, weather_data, mean_weather_data):
+def convert_dataframe(dataframe, weather_data, mean_weather_data, volume_data):
 	df = dataframe.copy()
 
 	# Process date field.
@@ -19,8 +19,10 @@ def convert_dataframe(dataframe, weather_data, mean_weather_data):
 	df['hour'] = df['time_window'].apply(lambda x: x.hour)
 	df['minute'] = df['time_window'].apply(lambda x: x.minute)
 
-	# Add weather info to dataframe.
+	# Add extra info to dataframe.
 	df = add_weather_data(df, weather_data, mean_weather_data)
+	window_num = 6
+	df = add_history_volume(df, volume_data, window_num)
 
 	# Drop unused field.
 	df.drop(['time_window'], axis=1, inplace=True)
@@ -52,6 +54,21 @@ def add_weather_data(dataframe, weather_data, avg_weather_data):
 	df['temperature'] = df_weather[:, 2]
 	df['wind_direction'] = df_weather[:, 3]
 	df['wind_speed'] = df_weather[:, 4]
+	return df
+
+def add_history_volume(dataframe, volume_data, window_num):
+	""" Add history volume info into dataframe.
+	Args:
+		dataframe: Original dataframe.
+		volume_data: A dataframe with history volume data.
+		window_num: Number of window involved.
+	Returns:
+		df: Dataframe with additional history info.
+	"""
+
+	df_history = dataframe.apply(lambda x: pd.Series(get_history_volume(volume_data, x.time_window,
+	window_num, x.tollgate_id, x.direction)), axis=1)
+	df = pd.concat([avg_volume_test, df_history], axis=1)
 	return df
 
 def rmse(label, pred):
@@ -88,8 +105,8 @@ if __name__ == "__main__":
 	test_cond = test_df.copy()
 
 	print "Converting dateframe..."
-	train_df = convert_dataframe(train_df, weather_train, mean_weather_train)
-	test_df = convert_dataframe(test_df, weather_test, mean_weather_test)
+	train_df = convert_dataframe(train_df, weather_train, mean_weather_train, volume_train)
+	test_df = convert_dataframe(test_df, weather_test, mean_weather_test, volume_test)
 
 	# Config XGBoost model.
 	params = {}
@@ -140,7 +157,7 @@ if __name__ == "__main__":
  	# Save model.
  	params_str = '_'.join(map(str, [params['objective'], params['colsample_bytree'],
  	params['max_depth'], num_round]))
- 	model_path = '../model/model_xgb_{}.bin'.format(params_str)
+ 	model_path = '../model/model_xgb_{}_history.bin'.format(params_str)
  	model.save_model(model_path)
  	print("Model saved to {}.".format(model_path))
 
