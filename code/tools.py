@@ -146,7 +146,10 @@ def export_predict(cond, pred, filename, pred_attr):
 		filename: Path to csv file to be export.
 		pred_attr: Name of prediction attribute.
 	"""
+
 	dataframe = cond.copy()
+	dataframe['time_window'] = dataframe.time_window.apply(lambda x: "[{},{})".\
+	format(x, x + DateOffset(minutes=20)))
 	dataframe[pred_attr] = pred
 	dataframe.to_csv(filename, index=False)
 	return
