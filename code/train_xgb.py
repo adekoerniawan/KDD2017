@@ -4,9 +4,9 @@ import xgboost as xgb
 import numpy as np
 import pandas as pd
 from datetime import datetime
+import time
 
 from tools import get_time_window, get_weather_data, export_predict, get_history_volume
-
 from load_data import *
 from config import config
 
@@ -118,8 +118,14 @@ if __name__ == "__main__":
 	test_cond = test_df.copy()
 
 	print "Converting dateframe..."
+	t1 = time.time()
 	train_df = convert_dataframe(train_df, weather_train, mean_weather_train, volume_train)
+	t2 = time.time()
+	print("Convert train dataframe in {} seconds.".format(t2 - t1))
+	t1 = time.time()
 	test_df = convert_dataframe(test_df, weather_test, mean_weather_test, volume_test)
+	t2 = time.time()
+	print("Convert test dataframe in {} seconds.".format(t2 - t1))
 
 	# Config XGBoost model.
 	params = config.xgb_params
@@ -169,7 +175,10 @@ if __name__ == "__main__":
  	# Save model.
  	params_str = '_'.join(map(str, [params['objective'], params['colsample_bytree'],
  	params['max_depth'], num_round]))
- 	model_path = '../model/model_xgb_{}_history.bin'.format(params_str)
+	if config.add_history:
+		params_str += '_history{}'.format(config.window_num)
+
+ 	model_path = '../model/model_xgb_{}.bin'.format(params_str)
  	model.save_model(model_path)
  	print("Model saved to {}.".format(model_path))
 

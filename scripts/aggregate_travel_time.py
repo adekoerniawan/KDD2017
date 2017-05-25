@@ -12,7 +12,8 @@ import math
 from datetime import datetime,timedelta
 
 file_suffix = '.csv'
-path = '../dataSets/testing_phase1/'  # set the data directory
+path = '../dataSets/dataSet_phase2/'  # set the data directory
+filename = 'trajectories(table_5)_training2'
 
 def avgTravelTime(in_file):
 
@@ -67,9 +68,7 @@ def avgTravelTime(in_file):
     fw.close()
 
 def main():
-
-    in_file = 'trajectories(table 5)_test1'
-    avgTravelTime(in_file)
+    avgTravelTime(filename)
 
 if __name__ == '__main__':
     main()

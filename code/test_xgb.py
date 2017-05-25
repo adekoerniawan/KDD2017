@@ -16,6 +16,7 @@ if __name__ == "__main__":
 
 	# Gernate dataframe for prediction.
 	date_offset = DateOffset(hours=2)
+	test_df['time_window'] = test_df.time_window.apply(lambda x: x + date_offset)
 	test_df.drop('volume', axis=1, inplace=True)
 	test_cond = test_df.copy()
 
@@ -23,7 +24,7 @@ if __name__ == "__main__":
 	print("Preprocessing on test data done.")
 
 	# Load model from file.
-	model_path = '../model/model_xgb_reg:linear_0.8_9_700_history.bin'
+	model_path = '../model/model_xgb_reg:linear_0.8_12_5000_history.bin'
 	model = xgb.Booster()
 	model.load_model(model_path)
 	print("Load xgboost model from {}.".format(model_path))

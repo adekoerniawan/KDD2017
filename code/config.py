@@ -24,10 +24,10 @@ xgb_params["eta"] = 0.02
 xgb_params["min_child_weight"] = 8
 xgb_params["subsample"] = 0.9
 xgb_params["colsample_bytree"] = 0.8
-xgb_params["max_depth"] = 9
+xgb_params["max_depth"] = 12
 xgb_params["seed"] = 1
 xgb_params["silent"] = 1
 config.xgb_params = xgb_params
-config.xgb_num_round = 700
+config.xgb_num_round = 5000
 config.xgb_nfold = 5
 
