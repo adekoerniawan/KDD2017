@@ -34,7 +34,7 @@ if __name__ == "__main__":
 	print("Prediction finished.")
 
 	# Export prediction data.
-	export_file = '../result/volume_prediction.csv'
+	export_file = '../result/volume_prediction_phase1.csv'
 	export_predict(test_cond, pred, export_file, 'volume')
 	print("Export prediction to {}".format(export_file))
 

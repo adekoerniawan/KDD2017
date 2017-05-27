@@ -1,4 +1,4 @@
-"date_time","tollgate","direction","model","is_etc","veh_type"
+"time","tollgate_id","direction","vehicle_model","has_etc","vehicle_type"
 "2016-10-25 06:02:43","3","0","1","0",""
 "2016-10-25 06:01:05","3","0","1","0",""
 "2016-10-25 06:01:15","2","0","1","1",""
