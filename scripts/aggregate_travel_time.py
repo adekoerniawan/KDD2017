@@ -13,7 +13,7 @@ from datetime import datetime,timedelta
 
 file_suffix = '.csv'
 path = '../dataSets/dataSet_phase2/'  # set the data directory
-filename = 'trajectories(table_5)_training2'
+filename = 'trajectories(table 5)_training2'
 
 def avgTravelTime(in_file):
 
