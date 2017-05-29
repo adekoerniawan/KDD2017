@@ -7,6 +7,7 @@ from pandas.tseries.offsets import DateOffset
 
 from tools import get_time_window, convert_time_window_by_delta, export_predict
 from train_xgb import convert_dataframe
+import pdb
 
 
 if __name__ == "__main__":
@@ -32,6 +33,7 @@ if __name__ == "__main__":
 	test_x = xgb.DMatrix(test_df)
 	pred = model.predict(test_x)
 	print("Prediction finished.")
+	pdb.set_trace()
 
 	# Export prediction data.
 	export_file = '../result/volume_prediction_phase1.csv'

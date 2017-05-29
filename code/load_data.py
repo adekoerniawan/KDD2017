@@ -160,31 +160,33 @@ def load_data(filepaths):
 	return (weather_data, mean_weather_data, volume_data, trajectory_data, avg_time_data,
 	avg_volume_data)
 
-# Load data from csv files.
+if __name__ == '__main__':
+	# Load data from csv files.
+	
+	# Load link and route data for both training and test.
+	link_file = data_root + 'training/links (table 3).csv'
+	route_file = data_root + 'training/routes (table 4).csv'
+	
+	link_data = parse_link_data(link_file)
+	route_data = parse_route_data(route_file)
+	
+	weather_file = data_root + 'training/weather (table 7)_training_update.csv'
+	volume_file = data_root + 'training/volume(table 6)_training.csv'
+	trajectory_file = data_root + 'training/trajectories(table 5)_training.csv'
+	avg_time_file = data_root + 'training/training_20min_avg_travel_time.csv'
+	avg_volume_file = data_root + 'training/training_20min_avg_volume.csv'
+	filepaths = [weather_file, volume_file, trajectory_file, avg_time_file, avg_volume_file]
+	
+	train_data = load_data(filepaths)
+	weather_train, mean_weather_train, volume_train, trajectory_train, avg_time_train, avg_volume_train = train_data
+	
+	weather_file = data_root + 'testing_phase1/weather (table 7)_test1.csv'
+	volume_file = data_root + 'testing_phase1/volume(table 6)_test1.csv'
+	trajectory_file = data_root + 'testing_phase1/trajectories(table 5)_test1.csv'
+	avg_time_file = data_root + 'testing_phase1/test1_20min_avg_travel_time.csv'
+	avg_volume_file = data_root + 'testing_phase1/test1_20min_avg_volume.csv'
+	filepaths = [weather_file, volume_file, trajectory_file, avg_time_file, avg_volume_file]
+	
+	test_data = load_data(filepaths)
+	weather_test, mean_weather_test, volume_test, trajectory_test, avg_time_test, avg_volume_test = test_data
 
-# Load link and route data for both training and test.
-link_file = data_root + 'training/links (table 3).csv'
-route_file = data_root + 'training/routes (table 4).csv'
-
-link_data = parse_link_data(link_file)
-route_data = parse_route_data(route_file)
-
-weather_file = data_root + 'training/weather (table 7)_training_update.csv'
-volume_file = data_root + 'training/volume(table 6)_training.csv'
-trajectory_file = data_root + 'training/trajectories(table 5)_training.csv'
-avg_time_file = data_root + 'training/training_20min_avg_travel_time.csv'
-avg_volume_file = data_root + 'training/training_20min_avg_volume.csv'
-filepaths = [weather_file, volume_file, trajectory_file, avg_time_file, avg_volume_file]
-
-train_data = load_data(filepaths)
-weather_train, mean_weather_train, volume_train, trajectory_train, avg_time_train, avg_volume_train = train_data
-
-weather_file = data_root + 'testing_phase1/weather (table 7)_test1.csv'
-volume_file = data_root + 'testing_phase1/volume(table 6)_test1.csv'
-trajectory_file = data_root + 'testing_phase1/trajectories(table 5)_test1.csv'
-avg_time_file = data_root + 'testing_phase1/test1_20min_avg_travel_time.csv'
-avg_volume_file = data_root + 'testing_phase1/test1_20min_avg_volume.csv'
-filepaths = [weather_file, volume_file, trajectory_file, avg_time_file, avg_volume_file]
-
-test_data = load_data(filepaths)
-weather_test, mean_weather_test, volume_test, trajectory_test, avg_time_test, avg_volume_test = test_data
