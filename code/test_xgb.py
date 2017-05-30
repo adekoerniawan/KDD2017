@@ -7,11 +7,10 @@ from pandas.tseries.offsets import DateOffset
 
 from tools import get_time_window, convert_time_window_by_delta, export_predict
 from train_xgb import convert_dataframe
-import pdb
-
+from config import config
 
 if __name__ == "__main__":
-	from load_data import *
+	from load_data_all import *
 	# Reading the csv file into pandas dataframe #
 	test_df = avg_volume_test
 
@@ -21,11 +20,11 @@ if __name__ == "__main__":
 	test_df.drop('volume', axis=1, inplace=True)
 	test_cond = test_df.copy()
 
-	test_df = convert_dataframe(test_df, weather_test, mean_weather_test, volume_test)
+	test_df = convert_dataframe(test_df, weather_data, mean_weather, volume_test)
 	print("Preprocessing on test data done.")
 
 	# Load model from file.
-	model_path = '../model/model_xgb_reg:linear_0.8_12_5000_history.bin'
+	model_path = config.xgb_params['pretrained_model']
 	model = xgb.Booster()
 	model.load_model(model_path)
 	print("Load xgboost model from {}.".format(model_path))
@@ -33,10 +32,9 @@ if __name__ == "__main__":
 	test_x = xgb.DMatrix(test_df)
 	pred = model.predict(test_x)
 	print("Prediction finished.")
-	pdb.set_trace()
 
 	# Export prediction data.
-	export_file = '../result/volume_prediction_phase1.csv'
+	export_file = '../result/volume_prediction_phase2.csv'
 	export_predict(test_cond, pred, export_file, 'volume')
 	print("Export prediction to {}".format(export_file))
 

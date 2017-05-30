@@ -7,8 +7,24 @@ from datetime import datetime
 import time
 
 from tools import get_time_window, get_weather_data, export_predict, get_history_volume
-from load_data import *
+from load_data_all import *
 from config import config
+
+def isHoliday(date_time):
+	""" Function to determine whether the date is holiday or not.
+	Args:
+		date_time: Pandas datetime object for judgement.
+	Returns:
+		0 - Not a holiday. 1 - Holiday.
+	"""
+
+	# Mid-Autumn Festival.
+	if date_time.month == 9 and date_time.day >= 15 and date_time.day <= 17:
+		return 1
+	# National Day.
+	elif date_time.month == 10 and date_time.day >= 1 and date_time.day <= 7:
+		return 1
+	return 0
 
 def convert_dataframe(dataframe, weather_data, mean_weather_data, volume_data):
 	df = dataframe.copy()
@@ -19,6 +35,7 @@ def convert_dataframe(dataframe, weather_data, mean_weather_data, volume_data):
 	df['weekday'] = df['time_window'].apply(lambda x: x.dayofweek)
 	df['hour'] = df['time_window'].apply(lambda x: x.hour)
 	df['minute'] = df['time_window'].apply(lambda x: x.minute)
+	df['holiday'] = df['time_window'].apply(lambda x: isHoliday(x))
 
 	# Add extra info to dataframe.
 	if config.add_weather:
@@ -71,7 +88,7 @@ def add_history_volume(dataframe, volume_data, window_num):
 
 	df_history = dataframe.apply(lambda x: pd.Series(get_history_volume(volume_data, x.time_window,
 	window_num, x.tollgate_id, x.direction)), axis=1)
-	df = pd.concat([avg_volume_test, df_history], axis=1)
+	df = pd.concat([dataframe, df_history], axis=1)
 	return df
 
 def rmse(label, pred):
@@ -94,6 +111,12 @@ def mape(label, pred):
 	"""
 	return np.mean(np.abs(label - pred).astype(np.float64) / label)
 
+# Evaluation metric.
+def eval_metric(pred, dtrain):
+	label = dtrain.get_label()
+#	rmse = np.sqrt(((label - pred) ** 2).mean())
+	mape = np.mean(np.abs(label - pred).astype(np.float64) / label)
+	return [('mape', mape)]
 
 if __name__ == "__main__":
 	# Reading the csv file into pandas dataframe #
@@ -119,11 +142,11 @@ if __name__ == "__main__":
 
 	print "Converting dateframe..."
 	t1 = time.time()
-	train_df = convert_dataframe(train_df, weather_train, mean_weather_train, volume_train)
+	train_df = convert_dataframe(train_df, weather_data, mean_weather, volume_train)
 	t2 = time.time()
 	print("Convert train dataframe in {} seconds.".format(t2 - t1))
 	t1 = time.time()
-	test_df = convert_dataframe(test_df, weather_test, mean_weather_test, volume_test)
+	test_df = convert_dataframe(test_df, weather_data, mean_weather, volume_test)
 	t2 = time.time()
 	print("Convert test dataframe in {} seconds.".format(t2 - t1))
 
@@ -149,7 +172,8 @@ if __name__ == "__main__":
 	watch_list = [(xgb_train_part, 'train'), (xgb_val, 'eval')]
 	
 	# Train and test with xgboost.
-	model = xgb.train(params, xgb_train, num_round, watch_list, verbose_eval=100)
+	model = xgb.train(params, xgb_train_part, num_round, watch_list,
+	verbose_eval=100, feval = eval_metric)
 	print("Training complete.")
 
 #	model_path = '../model/model_xgb.bin'
@@ -174,9 +198,10 @@ if __name__ == "__main__":
  
  	# Save model.
  	params_str = '_'.join(map(str, [params['objective'], params['colsample_bytree'],
- 	params['max_depth'], num_round]))
+ 	params['max_depth']]))
 	if config.add_history:
 		params_str += '_history{}'.format(config.window_num)
+	params_str += '_iter' + str(num_round)
 
  	model_path = '../model/model_xgb_{}.bin'.format(params_str)
  	model.save_model(model_path)
