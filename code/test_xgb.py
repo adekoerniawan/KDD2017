@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from pandas.tseries.offsets import DateOffset
 
-from tools import get_time_window, convert_time_window_by_delta, export_predict
+from tools import export_predict
 from train_xgb import convert_dataframe
 from config import config
 
@@ -24,9 +24,8 @@ if __name__ == "__main__":
 	print("Preprocessing on test data done.")
 
 	# Load model from file.
-	model_path = config.xgb_params['pretrained_model']
-	model = xgb.Booster()
-	model.load_model(model_path)
+	model_path = config.xgb_model
+	model = xgb.Booster(model_file=model_path)
 	print("Load xgboost model from {}.".format(model_path))
 
 	test_x = xgb.DMatrix(test_df)

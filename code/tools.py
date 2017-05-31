@@ -10,13 +10,6 @@ intersections = range(1, 4)
 tollgates = range(1, 4)
 directions = range(2)
 
-# Find time window of a particular time.
-def get_time_window(date_time):
-	minute, second = date_time.minute, date_time.second
-	time_delta = timedelta(minutes=minute%20, seconds=second)
-	time_window = date_time - time_delta
-	return time_window
-
 # Calculate average of weather data.
 def get_mean_data(weather_data):
 	mean_data = {}
@@ -26,19 +19,12 @@ def get_mean_data(weather_data):
 		mean_data[key] = weather_data[key].mean()
 	return mean_data
 
-# Get weather data at a specific time_window.
-def get_weather_data(date_time, weather_data, mean_weather_data=None):
-	if not mean_weather_data:
-		mean_weather_data = get_mean_data(weather_data)
-
-	hour, minute, second = date_time.hour, date_time.minute, date_time.second
-	time_delta = timedelta(hours=hour%3, minutes=minute, seconds=second)
-	time_window = pd.to_datetime(date_time - time_delta)
-
-	if time_window in weather_data.index:
-		return weather_data.loc[time_window].to_dict()
-	else:
-		return mean_weather_data
+# Find time window of a particular time.
+def get_time_window(date_time):
+	minute, second = date_time.minute, date_time.second
+	time_delta = timedelta(minutes=minute%20, seconds=second)
+	time_window = date_time - time_delta
+	return time_window
 
 def get_history_volume(volume_data, time_window, window_num, tollgate_id, direction):
 	""" Find volume info in previous time window.
@@ -96,47 +82,21 @@ def get_history_volume(volume_data, time_window, window_num, tollgate_id, direct
 		history_data.append(num_history)
 	return np.array(history_data).flatten()
 
-
-# Query all volume within a time-window.
-def get_volume_by_time(data, time_window, tollgate, direction):
-	results = []
-	for item in data:
-		if get_time_window(item['time']) != time_window:
-			continue
-		if item['tollgate_id'] != tollgate or item['direction'] != direction:
-			continue
-		results.append(item)
-	return results
-
-# Query all trajectories within a time-window.
-def get_trajectory_by_time(data, time_window, intersection, tollgate):
-	results = []
-	for item in data:
-		if get_time_window(item['start_time']) != time_window:
-			continue
-		if item['tollgate_id'] != tollgate or item['intersection_id'] != intersection:
-			continue
-		results.append(item)
-	return results
-
-def convert_time_window_by_delta(dataframe, date_offset = DateOffset(0)):
-	""" Alter time_window of dataframe by offset.
+def is_holiday(date_time):
+	""" Function to determine whether the date is holiday or not.
 	Args:
-		dataframe: Original dataframe with column 'time_window'.
-		date_offset: Offset of time_window, set to DateOffset(0) as default.
+		date_time: Pandas datetime object for judgement.
 	Returns:
-		df: Dataframe with time_window changed.
+		0 - Not a holiday. 1 - Holiday.
 	"""
 
-	df = dataframe.copy()
-	df['time_begin'] = pd.to_datetime(df.time_window.apply(lambda x: x.split(',')[0].strip('[')))
-	df['time_end'] = pd.to_datetime(df.time_window.apply(lambda x: x.split(',')[1].strip(')')))
-	df['time_begin'] = df.time_begin.apply(lambda x: x + date_offset)
-	df['time_end'] = df.time_end.apply(lambda x: x + date_offset)
-	df['time_window'] = df.apply(lambda x:
-	'[' + str(x['time_begin']) + ',' + str(x['time_end']) + ')', axis=1)
-	df.drop(['time_begin', 'time_end'], axis=1, inplace=True)
-	return df
+	# Mid-Autumn Festival.
+	if date_time.month == 9 and date_time.day >= 15 and date_time.day <= 17:
+		return 1
+	# National Day.
+	elif date_time.month == 10 and date_time.day >= 1 and date_time.day <= 7:
+		return 1
+	return 0
 
 def export_predict(cond, pred, filename, pred_attr):
 	""" Export prediction to csv file.
@@ -165,4 +125,3 @@ if __name__ == '__main__':
 	print time_end
 
 	print get_time_window(time_end)
-	print get_weather_data(time_end, weather_train, mean_weather_train)

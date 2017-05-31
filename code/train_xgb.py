@@ -6,25 +6,9 @@ import pandas as pd
 from datetime import datetime
 import time
 
-from tools import get_time_window, get_weather_data, export_predict, get_history_volume
+from tools import export_predict, get_history_volume, is_holiday
 from load_data_all import *
 from config import config
-
-def isHoliday(date_time):
-	""" Function to determine whether the date is holiday or not.
-	Args:
-		date_time: Pandas datetime object for judgement.
-	Returns:
-		0 - Not a holiday. 1 - Holiday.
-	"""
-
-	# Mid-Autumn Festival.
-	if date_time.month == 9 and date_time.day >= 15 and date_time.day <= 17:
-		return 1
-	# National Day.
-	elif date_time.month == 10 and date_time.day >= 1 and date_time.day <= 7:
-		return 1
-	return 0
 
 def convert_dataframe(dataframe, weather_data, mean_weather_data, volume_data):
 	df = dataframe.copy()
@@ -35,7 +19,7 @@ def convert_dataframe(dataframe, weather_data, mean_weather_data, volume_data):
 	df['weekday'] = df['time_window'].apply(lambda x: x.dayofweek)
 	df['hour'] = df['time_window'].apply(lambda x: x.hour)
 	df['minute'] = df['time_window'].apply(lambda x: x.minute)
-	df['holiday'] = df['time_window'].apply(lambda x: isHoliday(x))
+	df['holiday'] = df['time_window'].apply(lambda x: is_holiday(x))
 
 	# Add extra info to dataframe.
 	if config.add_weather:
@@ -148,9 +132,8 @@ if __name__ == "__main__":
 	# Config XGBoost model.
 	params = config.xgb_params
 	num_round = config.xgb_num_round
-	k_fold = config.xgb_nfold
 	print("Params of xgboost model: {}".format(params))
-	print("Number of rounds: {}, Number of fold: {}".format(num_round, k_fold))
+	print("Number of rounds: {}".format(num_round))
  
 	# Convert data format.
 	train_x, test_x = train_df, test_df
