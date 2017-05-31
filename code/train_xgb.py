@@ -59,21 +59,16 @@ def add_weather_data(dataframe, weather_data, avg_weather_data):
 	"""
 
 	df = dataframe.copy()
-	df_time = df.time_window.values
-	df_time = map(lambda x: datetime.utcfromtimestamp(x.tolist()/1e9), df_time)
+	df['date_time'] = df.time_window.apply(lambda x: x - pd.Timedelta(hours=x.hour % 3,
+	minutes=x.minute))
+	df = df.join(weather_data, on='date_time', how='left')
+	df.drop(['date_time', 'pressure', 'sea_pressure'], axis=1, inplace=True)
 
-	df_weather = []
-	for item in df_time:
-		datum = get_weather_data(item, weather_data, avg_weather_data)
-		df_weather.append([datum['precipitation'], datum['rel_humidity'], datum['temperature'],
-		datum['wind_direction'], datum['wind_speed']])
-	df_weather = np.array(df_weather)
+	# Fill nan in dataframe.
+	weather_columns = ['precipitation', 'rel_humidity', 'temperature', 'wind_direction', 'wind_speed']
+	for column in weather_columns:
+		df[column].fillna(avg_weather_data[column], inplace=True)
 
-	df['precipitation'] = df_weather[:, 0]
-	df['rel_humidity'] = df_weather[:, 1]
-	df['temperature'] = df_weather[:, 2]
-	df['wind_direction'] = df_weather[:, 3]
-	df['wind_speed'] = df_weather[:, 4]
 	return df
 
 def add_history_volume(dataframe, volume_data, window_num):
@@ -128,7 +123,7 @@ if __name__ == "__main__":
 	idx_train = np.arange(num_train)
 	num_val = int(num_train * config.val_ratio)
 	idx_val = np.random.randint(0, num_train, num_val)
-	idx_traini_part = np.delete(idx_train, idx_val)
+	idx_train_part = np.delete(idx_train, idx_val)
 	num_train = num_train - num_val
 	print("Divide dataset into training set with {} samples and validation set with {} \
 	samples.".format(num_train, num_val))
@@ -161,7 +156,7 @@ if __name__ == "__main__":
 	train_x, test_x = train_df, test_df
 	train_y, test_y = train_label, test_label
 
-	train_part_x, train_part_y = train_df.iloc[idx_train], train_label[idx_train]
+	train_part_x, train_part_y = train_df.iloc[idx_train_part], train_label[idx_train_part]
 	val_x, val_y = train_df.iloc[idx_val], train_label[idx_val]
 
 	# Construct DMatrix for xgb model.
