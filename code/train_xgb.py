@@ -3,7 +3,6 @@
 import xgboost as xgb
 import numpy as np
 import pandas as pd
-from datetime import datetime
 import time
 
 from tools import export_predict, get_history_volume, is_holiday
@@ -99,8 +98,8 @@ def eval_metric(pred, dtrain):
 
 if __name__ == "__main__":
 	# Reading the csv file into pandas dataframe #
-	train_df = avg_volume_train
-	test_df = avg_volume_test
+	train_df = avg_volume_train.copy()
+	test_df = avg_volume_test.copy()
 
 	# Divide dataset into training part and validation part.
 	num_train = len(train_df)
@@ -119,13 +118,13 @@ if __name__ == "__main__":
 	train_cond = train_df.copy()
 	test_cond = test_df.copy()
 
-	print "Converting dateframe..."
+	print("Converting dateframe...")
 	t1 = time.time()
-	train_df = convert_dataframe(train_df, weather_data, mean_weather, volume_train)
+	train_df = convert_dataframe(train_df, weather_data, mean_weather, avg_volume_train)
 	t2 = time.time()
 	print("Convert train dataframe in {} seconds.".format(t2 - t1))
 	t1 = time.time()
-	test_df = convert_dataframe(test_df, weather_data, mean_weather, volume_test)
+	test_df = convert_dataframe(test_df, weather_data, mean_weather, avg_volume_test)
 	t2 = time.time()
 	print("Convert test dataframe in {} seconds.".format(t2 - t1))
 

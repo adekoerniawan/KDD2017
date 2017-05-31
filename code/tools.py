@@ -29,7 +29,7 @@ def get_time_window(date_time):
 def get_history_volume(volume_data, time_window, window_num, tollgate_id, direction):
 	""" Find volume info in previous time window.
 	Args:
-		volume_data: Original volume data to be searched.
+		volume_data: Original average volume data to be searched.
 		time_window: Current time-window.
 		window_num: Number of previous time-windows.
 		tollgate_id: ID of tollgate in the volume to be queried.
@@ -38,49 +38,19 @@ def get_history_volume(volume_data, time_window, window_num, tollgate_id, direct
 		history_data: A two-dimension list with history volume data.
 	"""
 
-	volume_select = volume_data[(volume_data.tollgate_id == tollgate_id) & (volume_data.direction ==
-	direction)]
+	volume_select = volume_data[(volume_data.tollgate_id == tollgate_id) &
+	(volume_data.direction == direction)]
 	window_size = timedelta(minutes=20)
-	history_data = []
+	history_data = [np.nan] * window_num
 	time_begin = time_window
 	for i in range(window_num):
 		time_end = time_begin
 		time_begin -= window_size
-		sub_volume = volume_select[(volume_select.time >= time_begin) & (volume_select.time <
-		time_end)]
-#		print("{} records found from {} to {} at Tollgate {} in direction {}.".format(
-#		sub_volume.size, time_begin, time_end, tollgate_id, direction))
-
-		# Case of missin data.
-		if len(sub_volume) == 0:
-			history_data.append([np.nan] * 13)
-			continue
-
-		# Capicity of the vehicle, ranging from 0 to 7, bigger the higher.
-		count_model = sub_volume.vehicle_model.value_counts()
-		num_model = [0 for x in xrange(8)]
-		for key, value in count_model.iteritems():
-			num_model[key] = value
-		
-		# 0-passenger vehicle, 1-cargo vehicle, 2-nan.
-		count_type = sub_volume.vehicle_type.value_counts(dropna=False)
-		num_type = [0 for x in xrange(3)]
-		for key, value in count_type.iteritems():
-			try:
-				num_type[int(key)] = value
-			except:
-				num_type[2] = value
-
-		# 0-without ETC, 1-with ETC.
-		count_etc = sub_volume.has_etc.value_counts()
-		num_etc = [0, 0]
-		for key, value in count_etc.iteritems():
-			num_etc[key] = value
-
-		# Merge data of vehicle_vehicle, vehicle_type and etc.
-		num_history = reduce(lambda x, y: x + y, (num_model, num_type, num_etc))
-		history_data.append(num_history)
-	return np.array(history_data).flatten()
+		history_volume = volume_select[volume_select.time_window == time_begin].volume.values
+		if len(history_volume) > 0:
+			history_data[i] = history_volume[0]
+	history_data = np.array(history_data).flatten()
+	return history_data
 
 def is_holiday(date_time):
 	""" Function to determine whether the date is holiday or not.

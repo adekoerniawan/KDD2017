@@ -14,7 +14,7 @@ config.val_ratio = 0.2
 # Configuration for training feature.
 config.add_weather = True
 config.weather_attr = ['']
-config.add_history = False
+config.add_history = True
 config.window_num = 6
 
 # Parameters for xgb model.

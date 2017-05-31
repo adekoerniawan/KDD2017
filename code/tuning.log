@@ -47,3 +47,10 @@ RMSE of test: 22.3467297039
 MAPE of train: 0.258105354433
 MAPE of test: 0.432197570218
 
+Params of xgboost model: {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 6}
+Number of rounds: 3000
+RMSE of train: 6.08908611001
+RMSE of test: 28.5882569467
+MAPE of train: 0.178119016011
+MAPE of test: 0.263124371638
+
