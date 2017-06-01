@@ -1,31 +1,31 @@
 # Log during tuning models.
 
-Params of xgboost model: {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear',  'max_depth': 9}
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear',  'max_depth': 9}
 Number of rounds: 1000
 RMSE of train: 6.6579839311
 RMSE of test: 17.4041616623
 MAPE of train: 0.193286086468
 MAPE of test: 0.275384771744
 
-Params of xgboost model: {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 10}
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 10}
 Number of rounds: 1000
 MAPE of train: 0.174481392491
 MAPE of test: 0.279711320128
 
-Params of xgboost model: {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 11}
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 11}
 Number of rounds: 1000
 RMSE of train: 5.5716170917
 RMSE of test: 18.4282468088
 MAPE of train: 0.160164349097
 MAPE of test: 0.286819316108
 
-Params of xgboost model: {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 12}
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 12}
 Number of rounds: 1000
 MAPE of train: 0.149595424833
 MAPE of test: 0.290322530732
 
-Model with history volume:  {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'seed' 1, 'max_depth': 9}
-Number of rounds: 700
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 9}
+Number of rounds: 700; Number of history window: 6
 RMSE of train: 5.44533470623
 RMSE of test: 28.5439427639
 MAPE of train: 0.216437221477
@@ -47,10 +47,47 @@ RMSE of test: 22.3467297039
 MAPE of train: 0.258105354433
 MAPE of test: 0.432197570218
 
-Params of xgboost model: {'colsample_bytree': 0.8, 'silent': 1, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 6}
-Number of rounds: 3000
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 6}
+Number of rounds: 3000; Number of history window: 6
 RMSE of train: 6.08908611001
 RMSE of test: 28.5882569467
 MAPE of train: 0.178119016011
 MAPE of test: 0.263124371638
+
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 7}
+Number of rounds: 4000; Number of history window: 6
+RMSE of train: 5.16621058104
+RMSE of test: 28.4528506558
+MAPE of train: 0.109337487628
+MAPE of test: 0.256876325578
+
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 7}
+Number of rounds: 1700; Number of history window: 6
+RMSE of train: 6.43814383205
+RMSE of test: 27.7332872383
+MAPE of train: 0.185701020623
+MAPE of test: 0.257100176752
+
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 6}
+Number of rounds: 5000; Number of history window: 6
+RMSE of train: 5.33925309113
+RMSE of test: 29.2553044557
+MAPE of train: 0.134683814971
+MAPE of test: 0.262219071038
+
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 8}
+Number of rounds: 5000; Number of history window: 6
+RMSE of train: 5.03466759414
+RMSE of test: 28.7788791563
+MAPE of train: 0.0680144185978
+MAPE of test: 0.260791408003
+
+Params of xgboost model: {'colsample_bytree': 0.8, 'min_child_weight': 8, 'subsample': 0.9, 'eta': 0.02, 'objective': 'reg:linear', 'max_depth': 8}
+Number of rounds: 1500; Number of history window: 6
+RMSE of train: 5.97613347762
+RMSE of test: 29.1735113909
+MAPE of train: 0.162958799705
+MAPE of test: 0.263162444805
+
+
 

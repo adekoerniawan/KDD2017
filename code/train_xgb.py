@@ -133,6 +133,8 @@ if __name__ == "__main__":
 	num_round = config.xgb_num_round
 	print("Params of xgboost model: {}".format(params))
 	print("Number of rounds: {}".format(num_round))
+	if config.add_history:
+		print("Number of history window: {}".format(config.window_num))
  
 	# Convert data format.
 	train_x, test_x = train_df, test_df
